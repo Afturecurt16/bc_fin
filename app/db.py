@@ -43,6 +43,7 @@ class Database:
                     tg_user_id INTEGER NOT NULL UNIQUE,
                     username TEXT,
                     display_name TEXT,
+                    age TEXT,
                     role TEXT,
                     industry TEXT,
                     location TEXT,
@@ -184,6 +185,7 @@ class Database:
             self._ensure_column(conn, "complaints", "status", "TEXT NOT NULL DEFAULT 'open'")
             self._ensure_column(conn, "complaints", "admin_note", "TEXT")
             self._ensure_column(conn, "complaints", "updated_at", "TEXT")
+            self._ensure_column(conn, "users", "age", "TEXT")
             self._ensure_column(conn, "users", "external_links_consent", "INTEGER NOT NULL DEFAULT 0")
             self._ensure_column(conn, "admins", "tg_user_id", "INTEGER UNIQUE")
             self._ensure_column(conn, "admins", "username", "TEXT UNIQUE")
@@ -385,6 +387,7 @@ class Database:
     def update_profile_field(self, tg_user_id: int, field: str, value: str | None) -> None:
         allowed_fields = {
             "display_name",
+            "age",
             "role",
             "industry",
             "location",
@@ -445,7 +448,7 @@ class Database:
         user = self.get_user_profile(tg_user_id)
         if not user:
             return False
-        required = ["display_name", "role", "industry", "location", "bio", "languages"]
+        required = ["display_name", "age", "role", "company", "bio", "avatar_file_id"]
         return all((user.get(field) or "").strip() for field in required)
 
     def get_preferences(self, tg_user_id: int) -> dict | None:
@@ -502,22 +505,14 @@ class Database:
 
             profile_fields = [
                 "display_name",
+                "age",
                 "role",
-                "industry",
-                "location",
                 "bio",
-                "languages",
                 "company",
-                "skills",
-                "external_links",
+                "avatar_file_id",
             ]
             preference_fields = [
-                "contact_types",
-                "industries",
                 "roles",
-                "geography",
-                "interaction_formats",
-                "topics",
             ]
 
             profile_ok = all((user[field] or "").strip() for field in profile_fields)
@@ -718,7 +713,7 @@ class Database:
                 "bot_starts": scalar("SELECT COUNT(*) FROM events WHERE event_type = 'bot_started'"),
                 "onboardings_completed": scalar("SELECT COUNT(*) FROM events WHERE event_type = 'onboarding_completed'"),
                 "active_profiles": scalar("SELECT COUNT(*) FROM users WHERE profile_status = 'active'"),
-                "preferences_completed": scalar("SELECT COUNT(*) FROM preferences WHERE contact_types IS NOT NULL OR industries IS NOT NULL OR roles IS NOT NULL OR geography IS NOT NULL OR interaction_formats IS NOT NULL OR topics IS NOT NULL"),
+                "preferences_completed": scalar("SELECT COUNT(*) FROM preferences WHERE roles IS NOT NULL AND TRIM(roles) != ''"),
                 "recommendations_shown": scalar("SELECT COUNT(*) FROM events WHERE event_type = 'recommendation_shown'"),
                 "intros_sent": scalar("SELECT COUNT(*) FROM intros"),
                 "matches_created": scalar("SELECT COUNT(*) FROM matches"),

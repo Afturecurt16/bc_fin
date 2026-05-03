@@ -37,22 +37,14 @@ def profile_keyboard(has_links: bool = False, open_to_intro: bool = False) -> In
     rows = [
             [
                 InlineKeyboardButton(text="Имя", callback_data="profile:edit:name"),
-                InlineKeyboardButton(text="Роль", callback_data="profile:edit:role"),
+                InlineKeyboardButton(text="Возраст", callback_data="profile:edit:age"),
             ],
             [
-                InlineKeyboardButton(text="Индустрия", callback_data="profile:edit:industry"),
-                InlineKeyboardButton(text="Локация", callback_data="profile:edit:location"),
+                InlineKeyboardButton(text="Кто вы", callback_data="profile:edit:role"),
+                InlineKeyboardButton(text="Учеба/работа", callback_data="profile:edit:company"),
             ],
             [
-                InlineKeyboardButton(text="Био", callback_data="profile:edit:bio"),
-                InlineKeyboardButton(text="Языки", callback_data="profile:edit:languages"),
-            ],
-            [
-                InlineKeyboardButton(text="Компания", callback_data="profile:edit:company"),
-                InlineKeyboardButton(text="Навыки", callback_data="profile:edit:skills"),
-            ],
-            [
-                InlineKeyboardButton(text="Ссылки", callback_data="profile:edit:links"),
+                InlineKeyboardButton(text="О себе", callback_data="profile:edit:bio"),
                 InlineKeyboardButton(text="Аватар", callback_data="profile:edit:avatar"),
             ],
             [InlineKeyboardButton(text="Статус", callback_data="profile:status_menu")],
@@ -79,21 +71,20 @@ def profile_status_keyboard() -> InlineKeyboardMarkup:
 def preferences_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
-            [
-                InlineKeyboardButton(text="Тип контакта", callback_data="pref:edit:contact_types"),
-                InlineKeyboardButton(text="Индустрии", callback_data="pref:edit:industries"),
-            ],
-            [
-                InlineKeyboardButton(text="Роли", callback_data="pref:edit:roles"),
-                InlineKeyboardButton(text="География", callback_data="pref:edit:geography"),
-            ],
-            [
-                InlineKeyboardButton(text="Формат", callback_data="pref:edit:formats"),
-                InlineKeyboardButton(text="Темы", callback_data="pref:edit:topics"),
-            ],
+            [InlineKeyboardButton(text="С кем познакомиться", callback_data="pref:edit:roles")],
             [InlineKeyboardButton(text="Прием запросов на знакомство", callback_data="pref:toggle:open")],
         ]
     )
+
+
+def registration_multi_select_keyboard(options: list[str], selected: list[str]) -> InlineKeyboardMarkup:
+    selected_set = set(selected)
+    rows: list[list[InlineKeyboardButton]] = []
+    for index, option in enumerate(options):
+        mark = "✓ " if option in selected_set else ""
+        rows.append([InlineKeyboardButton(text=f"{mark}{option}", callback_data=f"regmulti:toggle:{index}")])
+    rows.append([InlineKeyboardButton(text="Готово", callback_data="regmulti:done")])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
 
 
 def recommendation_keyboard(candidate_id: int, has_links: bool = False) -> InlineKeyboardMarkup:

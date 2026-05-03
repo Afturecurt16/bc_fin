@@ -3,6 +3,7 @@ from aiogram.fsm.state import State, StatesGroup
 
 class ProfileStates(StatesGroup):
     waiting_name = State()
+    waiting_age = State()
     waiting_role = State()
     waiting_industry = State()
     waiting_location = State()
@@ -42,6 +43,7 @@ class LinkedinStates(StatesGroup):
 
 class RegistrationStates(StatesGroup):
     waiting_text = State()
+    waiting_multi_select = State()
     waiting_avatar = State()
 
 

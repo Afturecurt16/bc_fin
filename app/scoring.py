@@ -14,13 +14,11 @@ def tokenize_csv(raw_value: str | None) -> set[str]:
 def profile_completeness(candidate: dict) -> int:
     fields = [
         candidate.get("display_name"),
+        candidate.get("age"),
         candidate.get("role"),
-        candidate.get("industry"),
-        candidate.get("location"),
         candidate.get("bio"),
-        candidate.get("languages"),
         candidate.get("company"),
-        candidate.get("skills"),
+        candidate.get("avatar_file_id"),
     ]
     return sum(1 for value in fields if value)
 

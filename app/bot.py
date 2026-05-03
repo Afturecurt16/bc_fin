@@ -31,6 +31,7 @@ from app.keyboards import (
     profile_keyboard,
     profile_status_keyboard,
     recommendation_keyboard,
+    registration_multi_select_keyboard,
     support_keyboard,
 )
 from app.states import (
@@ -145,13 +146,14 @@ def admin_complaint_text(item: dict) -> str:
 
 
 PROFILE_FIELD_PROMPTS = {
-    "name": ("display_name", ProfileStates.waiting_name, "Укажи своё ФИО."),
-    "role": ("role", ProfileStates.waiting_role, "Введите роль или должность."),
+    "name": ("display_name", ProfileStates.waiting_name, "Укажите имя."),
+    "age": ("age", ProfileStates.waiting_age, "Укажите возраст числом."),
+    "role": ("role", ProfileStates.waiting_role, "Кто вы? Можно перечислить несколько вариантов через запятую."),
     "industry": ("industry", ProfileStates.waiting_industry, "Введите индустрию."),
-    "location": ("location", ProfileStates.waiting_location, "Укажи свой город."),
-    "bio": ("bio", ProfileStates.waiting_bio, "Напишите короткое био."),
+    "location": ("location", ProfileStates.waiting_location, "Укажите свой город."),
+    "bio": ("bio", ProfileStates.waiting_bio, "Кратко расскажите о себе/своей деятельности. До 800 символов."),
     "languages": ("languages", ProfileStates.waiting_languages, "Укажите языки общения через запятую."),
-    "company": ("company", ProfileStates.waiting_company, "Введите компанию."),
+    "company": ("company", ProfileStates.waiting_company, "Укажите место учебы/работы."),
     "skills": ("skills", ProfileStates.waiting_skills, "Укажите навыки или теги через запятую."),
     "links": ("external_links", ProfileStates.waiting_links, "Добавьте внешние ссылки на резюме или портфолио."),
     "avatar": ("avatar_file_id", ProfileStates.waiting_avatar, "Отправьте фотографию для аватара."),
@@ -164,137 +166,80 @@ PREFERENCE_FIELD_PROMPTS = {
         "Укажи типы контактов через запятую: наставник, ученик, кофаундер, рекрутер, коллега, клиент, партнёр.",
     ),
     "industries": (PreferenceStates.waiting_industries, "Какие индустрии вам интересны?"),
-    "roles": (PreferenceStates.waiting_roles, "Какие роли вы ищете?"),
+    "roles": (PreferenceStates.waiting_roles, "С кем тебе было бы интересно познакомиться? Перечисли варианты через запятую: предприниматель, стартапер, студент, маркетолог, IT-специалист, управленец, консультант."),
     "geography": (PreferenceStates.waiting_geography, "Укажите географию поиска."),
     "formats": (PreferenceStates.waiting_formats, "Форматы взаимодействия: чат, звонок, офлайн и т.д."),
     "topics": (PreferenceStates.waiting_topics, "Укажите темы интереса через запятую."),
 }
 
 
+PERSON_TYPE_OPTIONS = [
+    "Предприниматель",
+    "Стартапер",
+    "Студент",
+    "Маркетолог",
+    "IT-специалист",
+    "Управленец",
+    "Консультант",
+]
+
+
 REGISTRATION_STEPS = [
     {
         "kind": "profile",
         "field": "display_name",
-        "prompt": "Укажи своё ФИО",
+        "prompt": "Имя",
     },
     {
         "kind": "profile",
-        "field": "role",
-        "prompt": "Укажи свою роль или должность",
-    },
-    {
-        "kind": "profile",
-        "field": "industry",
-        "prompt": "Укажи свою индустрию",
-    },
-    {
-        "kind": "profile",
-        "field": "location",
-        "prompt": "Укажи свой город",
-    },
-    {
-        "kind": "profile",
-        "field": "bio",
-        "prompt": "Расскажи коротко о себе",
-    },
-    {
-        "kind": "profile",
-        "field": "languages",
-        "prompt": "Укажи языки общения через запятую",
+        "field": "age",
+        "prompt": "Возраст",
+        "type": "age",
     },
     {
         "kind": "profile",
         "field": "company",
-        "prompt": "Укажи компанию",
+        "prompt": "Место учебы/работы",
     },
     {
         "kind": "profile",
-        "field": "skills",
-        "prompt": "Перечисли навыки или теги через запятую",
+        "field": "bio",
+        "prompt": "Кратко расскажите о себе/своей деятельности (до 800 символов)",
+        "max_length": 800,
     },
     {
         "kind": "profile",
-        "field": "external_links",
-        "prompt": "Добавьте внешние ссылки на резюме или портфолио",
+        "field": "role",
+        "prompt": "Кто вы? Выберите один или несколько вариантов.",
+        "type": "multi_select",
+        "options": PERSON_TYPE_OPTIONS,
+    },
+    {
+        "kind": "preference",
+        "field": "roles",
+        "prompt": "С кем тебе было бы интересно познакомиться? Выберите один или несколько вариантов.",
+        "type": "multi_select",
+        "options": PERSON_TYPE_OPTIONS,
     },
     {
         "kind": "profile",
         "field": "avatar_file_id",
         "type": "avatar",
-        "prompt": "Отправь фото для аватара",
-    },
-    {
-        "kind": "preference",
-        "field": "contact_types",
-        "prompt": "Укажи, кого ты ищешь: наставник, ученик, кофаундер, рекрутер, коллега, клиент, партнёр",
-    },
-    {
-        "kind": "preference",
-        "field": "industries",
-        "prompt": "Укажи интересующие индустрии",
-    },
-    {
-        "kind": "preference",
-        "field": "roles",
-        "prompt": "Укажи интересующие роли",
-    },
-    {
-        "kind": "preference",
-        "field": "geography",
-        "prompt": "Укажи географию поиска",
-    },
-    {
-        "kind": "preference",
-        "field": "interaction_formats",
-        "prompt": "Укажи удобный формат общения: чат, звонок или офлайн",
-    },
-    {
-        "kind": "preference",
-        "field": "topics",
-        "prompt": "Перечисли темы, которые тебе интересны",
+        "prompt": "Пришлите фото",
     },
 ]
 
 
 def profile_summary(profile: dict, linkedin: dict | None) -> str:
-    linkedin_status = linkedin["status"] if linkedin else "not_started"
     status_label = PROFILE_STATUS_LABELS.get(profile.get("profile_status"), profile.get("profile_status") or "—")
-    links_line = "доступны по кнопке" if has_external_links(profile.get("external_links")) else "—"
     return (
         "<b>Мой профиль</b>\n"
         f"Статус: <code>{status_label}</code>\n"
         f"Имя: {escape(profile.get('display_name') or '—')}\n"
-        f"Роль: {escape(profile.get('role') or '—')}\n"
-        f"Индустрия: {escape(profile.get('industry') or '—')}\n"
-        f"Локация: {escape(profile.get('location') or '—')}\n"
-        f"Био: {escape(profile.get('bio') or '—')}\n"
-        f"Языки: {escape(profile.get('languages') or '—')}\n"
-        f"Компания: {escape(profile.get('company') or '—')}\n"
-        f"Навыки: {escape(profile.get('skills') or '—')}\n"
-        f"Ссылки: {links_line}\n"
-        f"LinkedIn: <code>{linkedin_status}</code>\n"
-        f"Принимаю запросы на знакомство: {'да' if int(profile.get('open_to_intro') or 0) else 'нет'}"
-    )
-
-
-def profile_summary(profile: dict, linkedin: dict | None) -> str:
-    status_label = PROFILE_STATUS_LABELS.get(profile.get("profile_status"), profile.get("profile_status") or "—")
-    links = extract_links(profile.get("external_links"))
-    links_line = "—" if not links else "\n".join(
-        f'<a href="{escape(url, quote=True)}">{escape(url)}</a>' for url in links
-    )
-    return (
-        "<b>Мой профиль</b>\n"
-        f"Статус: <code>{status_label}</code>\n"
-        f"Имя: {escape(profile.get('display_name') or '—')}\n"
-        f"Роль: {escape(profile.get('role') or '—')}\n"
-        f"Индустрия: {escape(profile.get('industry') or '—')}\n"
-        f"Локация: {escape(profile.get('location') or '—')}\n"
-        f"Био: {escape(profile.get('bio') or '—')}\n"
-        f"Языки: {escape(profile.get('languages') or '—')}\n"
-        f"Компания: {escape(profile.get('company') or '—')}\n"
-        f"Навыки: {escape(profile.get('skills') or '—')}\n"
-        f"Ссылки: {links_line}\n"
+        f"Возраст: {escape(str(profile.get('age') or '—'))}\n"
+        f"Кто вы: {escape(profile.get('role') or '—')}\n"
+        f"Место учебы/работы: {escape(profile.get('company') or '—')}\n"
+        f"О себе: {escape(profile.get('bio') or '—')}\n"
         f"Принимаю запросы на знакомство: {'да' if int(profile.get('open_to_intro') or 0) else 'нет'}"
     )
 
@@ -304,12 +249,7 @@ def preference_summary(preferences: dict | None, profile: dict | None) -> str:
     profile = profile or {}
     return (
         "<b>Кого я ищу</b>\n"
-        f"Типы контактов: {escape(preferences.get('contact_types') or '—')}\n"
-        f"Индустрии: {escape(preferences.get('industries') or '—')}\n"
-        f"Роли: {escape(preferences.get('roles') or '—')}\n"
-        f"География: {escape(preferences.get('geography') or '—')}\n"
-        f"Формат: {escape(preferences.get('interaction_formats') or '—')}\n"
-        f"Темы: {escape(preferences.get('topics') or '—')}\n"
+        f"С кем интересно познакомиться: {escape(preferences.get('roles') or '—')}\n"
         f"Принимаю запросы на знакомство: {'да' if int(profile.get('open_to_intro') or 0) else 'нет'}"
     )
 
@@ -342,19 +282,16 @@ def privacy_summary(privacy: dict) -> str:
 
 def candidate_card(candidate: dict) -> str:
     verified_badge = " ✅ LinkedIn verified" if candidate.get("linkedin_status") == "verified" else ""
-    company_line = f"\nКомпания: {escape(candidate.get('company') or '—')}" if int(candidate.get("show_company") or 0) else ""
-    location_line = f"\nЛокация: {escape(candidate.get('location') or '—')}" if int(candidate.get("show_location") or 0) else ""
+    company_line = f"\nМесто учебы/работы: {escape(candidate.get('company') or '—')}" if int(candidate.get("show_company") or 0) else ""
     linkedin_line = f"\nLinkedIn: {escape(candidate.get('linkedin_url') or '—')}" if int(candidate.get("show_linkedin") or 0) else ""
     links_line = "\nСсылки: доступны по кнопке" if has_external_links(candidate.get("external_links")) else ""
     return (
         "<b>Рекомендация</b>\n"
         f"{escape(candidate.get('display_name') or 'Без имени')}{verified_badge}\n"
-        f"Роль: {escape(candidate.get('role') or '—')}\n"
-        f"Индустрия: {escape(candidate.get('industry') or '—')}"
+        f"Возраст: {escape(str(candidate.get('age') or '—'))}\n"
+        f"Кто вы: {escape(candidate.get('role') or '—')}"
         f"{company_line}"
-        f"{location_line}\n"
-        f"Био: {escape(candidate.get('bio') or '—')}\n"
-        f"Языки: {escape(candidate.get('languages') or '—')}{linkedin_line}{links_line}\n"
+        f"\nО себе: {escape(candidate.get('bio') or '—')}{linkedin_line}{links_line}\n"
         f"Скоринг: <code>{candidate.get('score')}</code>"
     )
 
@@ -363,8 +300,7 @@ def intro_summary(intro: dict) -> str:
     return (
         "<b>Входящее интро</b>\n"
         f"От: {escape(intro.get('sender_name') or '—')}\n"
-        f"Роль: {escape(intro.get('sender_role') or '—')}\n"
-        f"Индустрия: {escape(intro.get('sender_industry') or '—')}\n"
+        f"Кто вы: {escape(intro.get('sender_role') or '—')}\n"
         f"Статус: <code>{intro.get('status')}</code>\n\n"
         f"{escape(intro.get('intro_text') or '')}"
     )
@@ -374,7 +310,7 @@ def match_summary(match: dict) -> str:
     return (
         "<b>Мэтч</b>\n"
         f"Контакт: {escape(match.get('partner_name') or '—')}\n"
-        f"Роль: {escape(match.get('partner_role') or '—')}\n"
+        f"Кто вы: {escape(match.get('partner_role') or '—')}\n"
         f"Статус: <code>{match.get('status')}</code>"
     )
 
@@ -432,12 +368,31 @@ def build_router(settings: Settings, db: Database) -> Dispatcher:
         cleaned = value.strip()
         return "-" if cleaned.lower() in {"-", "нет"} else cleaned
 
+    def validate_registration_value(step: dict, raw_value: str) -> tuple[str | None, str | None]:
+        value = raw_value.strip()
+        if not value or normalize_registration_text(value) == "-":
+            return None, "Пожалуйста, заполните это поле."
+        if step.get("type") == "age":
+            if not value.isdigit():
+                return None, "Укажите возраст числом."
+            age = int(value)
+            if age < 14 or age > 100:
+                return None, "Укажите корректный возраст от 14 до 100."
+            return str(age), None
+        max_length = step.get("max_length")
+        if max_length and len(value) > int(max_length):
+            return None, f"Слишком длинный ответ. Максимум {max_length} символов."
+        return value, None
+
     async def prompt_registration_step(message: Message, state: FSMContext, step_index: int) -> None:
         step = REGISTRATION_STEPS[step_index]
         total = len(REGISTRATION_STEPS)
-        await state.update_data(registration_step=step_index)
-        if step.get("type") == "avatar":
+        await state.update_data(registration_step=step_index, selected_options=[])
+        step_type = step.get("type")
+        if step_type == "avatar":
             await state.set_state(RegistrationStates.waiting_avatar)
+        elif step_type == "multi_select":
+            await state.set_state(RegistrationStates.waiting_multi_select)
         else:
             await state.set_state(RegistrationStates.waiting_text)
         intro = ""
@@ -447,15 +402,17 @@ def build_router(settings: Settings, db: Database) -> Dispatcher:
                 "Я помогу тебе заполнить профиль для нетворкинга\n"
                 "и найти релевантные знакомства.\n\n"
             )
-        await message.answer(
-            (
-                f"{intro}"
-                f"<b>Шаг {step_index + 1} из {total}</b>\n\n"
-                f"<blockquote>{step['prompt']}</blockquote>\n\n"
-                "Если данных нет, отправь <code>-</code> или <code>нет</code>."
-            ),
-            reply_markup=ReplyKeyboardRemove(),
-        )
+        text = f"{intro}<b>Шаг {step_index + 1} из {total}</b>\n\n<blockquote>{step['prompt']}</blockquote>"
+        if step_type == "multi_select":
+            await message.answer(
+                text,
+                reply_markup=registration_multi_select_keyboard(step["options"], []),
+            )
+            return
+        if step_type == "avatar":
+            await message.answer(text, reply_markup=ReplyKeyboardRemove())
+            return
+        await message.answer(text, reply_markup=ReplyKeyboardRemove())
 
     async def finish_registration(message: Message, state: FSMContext) -> None:
         db.set_profile_status(message.from_user.id, "active")
@@ -524,9 +481,8 @@ def build_router(settings: Settings, db: Database) -> Dispatcher:
                         f"На кого: {user_tag(target.get('tg_user_id'), target.get('username'), target.get('display_name'))}",
                         (
                             "На что: профиль\n"
-                            f"Роль: {escape(target.get('role') or '—')}\n"
-                            f"Индустрия: {escape(target.get('industry') or '—')}\n"
-                            f"Био: {escape(target.get('bio') or '—')}"
+                            f"Кто вы: {escape(target.get('role') or '—')}\n"
+                            f"О себе: {escape(target.get('bio') or '—')}"
                         ),
                     ]
                 )
@@ -653,13 +609,16 @@ def build_router(settings: Settings, db: Database) -> Dispatcher:
     @dp.message(RegistrationStates.waiting_text)
     async def registration_text_step(message: Message, state: FSMContext) -> None:
         if not message.text or not message.text.strip():
-            await message.answer("Нужен текстовый ответ. Если хотите пропустить поле, отправьте `-` или `нет`.")
+            await message.answer("Нужен текстовый ответ.")
             return
 
         data = await state.get_data()
         step_index = int(data["registration_step"])
         step = REGISTRATION_STEPS[step_index]
-        value = normalize_registration_text(message.text)
+        value, error = validate_registration_value(step, message.text)
+        if error:
+            await message.answer(error)
+            return
 
         if step["kind"] == "profile":
             db.update_profile_field(message.from_user.id, step["field"], value)
@@ -671,6 +630,52 @@ def build_router(settings: Settings, db: Database) -> Dispatcher:
             await finish_registration(message, state)
             return
         await prompt_registration_step(message, state, next_step)
+
+    @dp.callback_query(RegistrationStates.waiting_multi_select, F.data.startswith("regmulti:toggle:"))
+    async def registration_multi_select_toggle(callback: CallbackQuery, state: FSMContext) -> None:
+        data = await state.get_data()
+        step_index = int(data["registration_step"])
+        step = REGISTRATION_STEPS[step_index]
+        options = step["options"]
+        option_index = int(callback.data.split(":")[-1])
+        if option_index < 0 or option_index >= len(options):
+            await callback.answer("Вариант не найден.", show_alert=True)
+            return
+        selected = list(data.get("selected_options") or [])
+        option = options[option_index]
+        if option in selected:
+            selected.remove(option)
+        else:
+            selected.append(option)
+        await state.update_data(selected_options=selected)
+        await callback.message.edit_reply_markup(
+            reply_markup=registration_multi_select_keyboard(options, selected),
+        )
+        await callback.answer()
+
+    @dp.callback_query(RegistrationStates.waiting_multi_select, F.data == "regmulti:done")
+    async def registration_multi_select_done(callback: CallbackQuery, state: FSMContext) -> None:
+        data = await state.get_data()
+        step_index = int(data["registration_step"])
+        step = REGISTRATION_STEPS[step_index]
+        selected = list(data.get("selected_options") or [])
+        if not selected:
+            await callback.answer("Выберите хотя бы один вариант.", show_alert=True)
+            return
+        value = ", ".join(selected)
+        if step["kind"] == "profile":
+            db.update_profile_field(callback.from_user.id, step["field"], value)
+        else:
+            db.update_preference_field(callback.from_user.id, step["field"], value)
+
+        next_step = step_index + 1
+        if next_step >= len(REGISTRATION_STEPS):
+            await finish_registration(callback.message, state)
+            await callback.answer()
+            return
+        await callback.message.edit_reply_markup(reply_markup=None)
+        await callback.answer("Сохранено")
+        await prompt_registration_step(callback.message, state, next_step)
 
     @dp.message(RegistrationStates.waiting_avatar, F.photo)
     async def registration_avatar_step(message: Message, state: FSMContext) -> None:
@@ -685,16 +690,7 @@ def build_router(settings: Settings, db: Database) -> Dispatcher:
 
     @dp.message(RegistrationStates.waiting_avatar)
     async def registration_avatar_skip(message: Message, state: FSMContext) -> None:
-        if not message.text or normalize_registration_text(message.text) != "-":
-            await message.answer("Для аватара пришлите фото или отправьте `-` / `нет`.")
-            return
-        db.update_profile_field(message.from_user.id, "avatar_file_id", None)
-        data = await state.get_data()
-        next_step = int(data["registration_step"]) + 1
-        if next_step >= len(REGISTRATION_STEPS):
-            await finish_registration(message, state)
-            return
-        await prompt_registration_step(message, state, next_step)
+        await message.answer("Пожалуйста, пришлите фото.")
 
     @dp.message(Command("admin_stats"))
     async def admin_stats(message: Message) -> None:
@@ -928,6 +924,7 @@ def build_router(settings: Settings, db: Database) -> Dispatcher:
 
     @dp.message(
         ProfileStates.waiting_name,
+        ProfileStates.waiting_age,
         ProfileStates.waiting_role,
         ProfileStates.waiting_industry,
         ProfileStates.waiting_location,
@@ -943,7 +940,20 @@ def build_router(settings: Settings, db: Database) -> Dispatcher:
             return
         data = await state.get_data()
         field = data["profile_field"]
-        db.update_profile_field(message.from_user.id, field, message.text.strip())
+        value = message.text.strip()
+        if field == "age":
+            if not value.isdigit():
+                await message.answer("Укажите возраст числом.")
+                return
+            age = int(value)
+            if age < 14 or age > 100:
+                await message.answer("Укажите корректный возраст от 14 до 100.")
+                return
+            value = str(age)
+        if field == "bio" and len(value) > 800:
+            await message.answer("Слишком длинный ответ. Максимум 800 символов.")
+            return
+        db.update_profile_field(message.from_user.id, field, value)
         await state.clear()
         profile = db.get_user_profile(message.from_user.id)
         linkedin = db.get_linkedin(message.from_user.id)
